@@ -4,7 +4,7 @@ app = Flask(__name__)
 stored_url = None
 
 # Token bí mật để xác thực giữa máy A và máy B
-SECRET_TOKEN = "your_secure_token_here"
+SECRET_TOKEN = "123456"
 
 @app.route("/", methods=["GET"])
 def index():
