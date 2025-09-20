@@ -1,37 +1,36 @@
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-stored_url = None
 
-# Token bí mật để xác thực giữa máy A và máy B
-SECRET_TOKEN = "123456"
+# === Cấu hình bảo mật ===
+SECRET_TOKEN = "your_secure_token_here"  # Trùng với token từ Máy A
 
-@app.route("/", methods=["GET"])
-def index():
-    return "Ngrok Relay API is running.", 200
+# === Biến lưu URL mới nhất ===
+latest_data = {}
 
+# === Endpoint nhận URL từ máy A ===
 @app.route("/update", methods=["POST"])
 def update_url():
-    auth = request.headers.get("Authorization")
+    auth = request.headers.get("Authorization", "")
     if auth != f"Bearer {SECRET_TOKEN}":
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
     if not data or "url" not in data:
-        return jsonify({"error": "Missing URL in body"}), 400
+        return jsonify({"error": "Missing URL"}), 400
 
-    global stored_url
-    stored_url = data["url"]
-    print(f"[Relay] Received new URL: {stored_url}")
-    return jsonify({"message": "URL updated"}), 200
+    latest_data["url"] = data["url"]
+    latest_data["machine"] = data.get("machine", "unknown")
+    return jsonify({"message": "URL updated successfully"}), 200
 
+# === Endpoint cho máy B lấy URL mới nhất ===
 @app.route("/latest", methods=["GET"])
 def get_latest():
-    if stored_url:
-        return jsonify({"url": stored_url}), 200
-    else:
-        return jsonify({"message": "No URL stored yet"}), 404
+    if "url" not in latest_data:
+        return jsonify({"error": "No data yet"}), 404
+    return jsonify(latest_data), 200
 
-if __name__ == "__main__":
-    # chạy API trên port 5001
-    app.run(host="0.0.0.0", port=5001)
+# === Kiểm tra server đang chạy ===
+@app.route("/", methods=["GET"])
+def index():
+    return "Relay API is running.", 200
