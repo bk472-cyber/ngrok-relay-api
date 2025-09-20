@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # === Cấu hình bảo mật ===
-SECRET_TOKEN = "your_secure_token_here"  # Trùng với token từ Máy A
+SECRET_TOKEN = "123456"  # Trùng với token từ Máy A
 
 # === Biến lưu URL mới nhất ===
 latest_data = {}
